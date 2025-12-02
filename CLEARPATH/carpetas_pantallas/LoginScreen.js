@@ -12,51 +12,63 @@ import {
     Image, 
     ActivityIndicator 
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// IMPORTANTE: Asegúrate de que esta imagen exista en tu carpeta assets
+import { UsuarioController } from '../controllers/UsuarioController';
+
 const logoImage = require('../assets/adaptive-icon.png'); 
 
 export default function LoginScreen({ navigation }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    const [isModalVisible, setModalVisible] = useState(false);
+
+    const controller = new UsuarioController();
+
+    const isValidEmail = (email) => {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    };
 
     const handleLogin = async () => {
-        // 1. Validaciones básicas
-        if (email.trim() === '') {
-            Alert.alert('Error', 'Por favor ingresa tu correo.');
+        
+        if (email.trim() === '' || password.trim() === '') {
+            Alert.alert('Campos incompletos', 'Por favor ingresa tu correo y contraseña.');
             return;
-        } 
-        if (password.trim() === '') {
-            Alert.alert('Error', 'Por favor ingresa tu contraseña.');
+        }
+
+        if (!isValidEmail(email)) {
+            Alert.alert('Correo inválido', 'Por favor ingresa un correo electrónico válido (ejemplo@correo.com).');
             return;
         }
 
         setLoading(true);
 
         try {
-            // AQUÍ IRÁ TU LÓGICA DE BASE DE DATOS MÁS ADELANTE
-            // Por ahora simulamos una espera de 1 segundo
-            setTimeout(() => {
-                setLoading(false);
+            const usuarioEncontrado = await controller.login(email, password);
+
+            if (usuarioEncontrado) {
+                console.log("Usuario autenticado:", usuarioEncontrado.nombre);
                 
-                // Mensaje de éxito
-                Alert.alert('¡Bienvenido!', 'Has iniciado sesión correctamente', [
+                Alert.alert('¡Bienvenido!', `Hola de nuevo, ${usuarioEncontrado.nombre}`, [
                     { 
                         text: "CONTINUAR", 
                         onPress: () => {
-                            // CORRECCIÓN: Ahora sí navega a la pantalla 'Welcome'
+                            // Limpiamos campos
+                            setEmail('');
+                            setPassword('');
+                            // Navegamos a la pantalla de Bienvenida
                             navigation.replace("Welcome"); 
                         }
                     }
                 ]);
-            }, 1500);
+            } else {
+                Alert.alert('Acceso Denegado', 'El correo o la contraseña son incorrectos, o el usuario no está registrado.');
+            }
 
         } catch (error) {
             console.error("Error en login:", error);
-            Alert.alert('Error', 'Hubo un problema al iniciar sesión');
+            Alert.alert('Error', 'Hubo un problema al intentar iniciar sesión.');
+        } finally {
             setLoading(false);
         }
     };
@@ -67,13 +79,11 @@ export default function LoginScreen({ navigation }) {
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 style={styles.container}
             >
-                {/* LOGO */}
                 <View style={styles.logoContainer}>
                     <Image source={logoImage} style={styles.logoImage} />
                     <Text style={styles.brandText}>CLEAR PATH</Text>
                 </View>
 
-                {/* BANNER NARANJA */}
                 <View style={styles.bannerContainer}>
                     <Text style={styles.bannerText}>INICIAR SESIÓN</Text>
                 </View>
@@ -81,7 +91,6 @@ export default function LoginScreen({ navigation }) {
                 <View style={styles.contentContainer}>
                     <Text style={styles.subTitle}>Ingresa tus datos</Text>
 
-                    {/* FORMULARIO */}
                     <View style={styles.inputContainer}>
                         <Text style={styles.label}>Correo Electrónico</Text>
                         <TextInput
@@ -90,6 +99,7 @@ export default function LoginScreen({ navigation }) {
                             onChangeText={setEmail}
                             keyboardType="email-address"
                             autoCapitalize="none"
+                            placeholder="ejemplo@correo.com"
                         />
 
                         <Text style={styles.label}>Contraseña</Text>
@@ -98,17 +108,16 @@ export default function LoginScreen({ navigation }) {
                             value={password}
                             onChangeText={setPassword}
                             secureTextEntry={true}
+                            placeholder="********"
                         />
                     </View>
 
-                    {/* OLVIDASTE CONTRASEÑA */}
-                    <Pressable onPress={() => console.log("Recuperar contraseña")} style={styles.forgotPassContainer}>
+                    <Pressable onPress={() => Alert.alert("Info", "Contacta a soporte para recuperar tu cuenta.")} style={styles.forgotPassContainer}>
                         <Text style={styles.linkTextPink}>
                             ¿Olvidaste tu contraseña?
                         </Text>
                     </Pressable>
 
-                    {/* BOTÓN INICIAR SESIÓN */}
                     <Pressable 
                         style={[styles.button, loading && styles.buttonDisabled]} 
                         onPress={handleLogin}
@@ -121,7 +130,6 @@ export default function LoginScreen({ navigation }) {
                         )}
                     </Pressable>
 
-                    {/* REGISTRARSE */}
                     <View style={styles.footer}>
                         <Text style={styles.footerText}>¿No tienes cuenta? </Text>
                         <Pressable onPress={() => navigation.navigate("Registro")}>
@@ -136,105 +144,29 @@ export default function LoginScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-    safeArea: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
-    container: {
-        flex: 1,
-        alignItems: 'center',
-        width: '100%',
-    },
-    logoContainer: {
-        marginTop: 40,
-        marginBottom: 20,
-        alignItems: 'center',
-    },
-    logoImage: {
-        width: 100, 
-        height: 60,
-        resizeMode: 'contain',
-    },
-    brandText: {
-        fontSize: 16,
-        color: '#FFAB91', 
-        letterSpacing: 2,
-        marginTop: 5,
-        fontWeight: '300',
-    },
-    bannerContainer: {
-        width: '100%',
-        backgroundColor: '#FFCC80', 
-        paddingVertical: 10,
-        alignItems: 'center',
-        marginBottom: 30,
-    },
-    bannerText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#000',
-        textTransform: 'uppercase',
-    },
-    contentContainer: {
-        width: '85%',
-        alignItems: 'center',
-    },
-    subTitle: {
-        fontSize: 16,
-        color: '#555',
-        marginBottom: 20,
-    },
-    inputContainer: {
-        width: '100%',
-    },
-    label: {
-        fontSize: 14,
-        color: '#333',
-        marginBottom: 5,
-        fontWeight: '500',
-        marginLeft: 5,
-    },
-    input: {
-        backgroundColor: '#F5F5F5', 
-        borderRadius: 20, 
-        paddingVertical: 10,
-        paddingHorizontal: 15,
-        marginBottom: 20,
-        fontSize: 15,
-        color: '#333',
-    },
-    forgotPassContainer: {
-        alignSelf: 'flex-end',
-        marginBottom: 30,
-    },
-    linkTextPink: {
-        color: '#FF80AB', 
-        fontSize: 14,
-        fontWeight: '400',
-    },
-    button: {
-        backgroundColor: '#FF9800', 
-        paddingVertical: 15,
-        borderRadius: 25, 
-        width: '100%',
-        alignItems: 'center',
-        marginBottom: 20,
-        elevation: 2,
-    },
-    buttonDisabled: {
-        backgroundColor: '#FFCC80',
-    },
-    buttonText: {
-        color: '#FFFFFF',
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    footer: {
-        flexDirection: 'row',
-        marginTop: 10,
-    },
-    footerText: {
-        fontSize: 14,
-        color: '#555',
-    },
+    safeArea: { 
+        flex: 1, 
+        backgroundColor: '#fff' 
+        },
+    container: { 
+        flex: 1, 
+        alignItems: 'center', 
+        width: '100%' },
+    logoContainer: { marginTop: 40, marginBottom: 20, alignItems: 'center' },
+    logoImage: { width: 100, height: 60, resizeMode: 'contain' },
+    brandText: { fontSize: 16, color: '#FFAB91', letterSpacing: 2, marginTop: 5, fontWeight: '300' },
+    bannerContainer: { width: '100%', backgroundColor: '#FFCC80', paddingVertical: 10, alignItems: 'center', marginBottom: 30 },
+    bannerText: { fontSize: 18, fontWeight: 'bold', color: '#000', textTransform: 'uppercase' },
+    contentContainer: { width: '85%', alignItems: 'center' },
+    subTitle: { fontSize: 16, color: '#555', marginBottom: 20 },
+    inputContainer: { width: '100%' },
+    label: { fontSize: 14, color: '#333', marginBottom: 5, fontWeight: '500', marginLeft: 5 },
+    input: { backgroundColor: '#F5F5F5', borderRadius: 20, paddingVertical: 10, paddingHorizontal: 15, marginBottom: 20, fontSize: 15, color: '#333' },
+    forgotPassContainer: { alignSelf: 'flex-end', marginBottom: 30 },
+    linkTextPink: { color: '#FF80AB', fontSize: 14, fontWeight: '400' },
+    button: { backgroundColor: '#FF9800', paddingVertical: 15, borderRadius: 25, width: '100%', alignItems: 'center', marginBottom: 20, elevation: 2 },
+    buttonDisabled: { backgroundColor: '#FFCC80' },
+    buttonText: { color: '#FFFFFF', fontSize: 18, fontWeight: 'bold' },
+    footer: { flexDirection: 'row', marginTop: 10 },
+    footerText: { fontSize: 14, color: '#555' },
 });

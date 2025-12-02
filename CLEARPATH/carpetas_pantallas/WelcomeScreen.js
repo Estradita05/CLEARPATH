@@ -1,133 +1,172 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, Pressable, SafeAreaView, Dimensions } from 'react-native';
+import React, { useState } from 'react';
+import { 
+    View, 
+    Text, 
+    StyleSheet, 
+    TextInput, 
+    Pressable, 
+    KeyboardAvoidingView, 
+    Platform, 
+    Alert, 
+    SafeAreaView, 
+    Image, 
+    ActivityIndicator 
+} from 'react-native';
 
-// Asegúrate de que la ruta de tu logo sea correcta
+import { UsuarioController } from '../controllers/UsuarioController';
+
 const logoImage = require('../assets/adaptive-icon.png'); 
 
-export default function WelcomeScreen({ navigation }) {
-    
-    // Función para ir al Login cuando presionan "EMPEZAR"
-    const handleStart = () => {
-        navigation.navigate('Login');
+export default function LoginScreen({ navigation }) {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const controller = new UsuarioController();
+
+    const isValidEmail = (email) => {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    };
+
+    const handleLogin = async () => {
+        
+        if (email.trim() === '' || password.trim() === '') {
+            Alert.alert('Campos incompletos', 'Por favor ingresa tu correo y contraseña.');
+            return;
+        }
+
+        if (!isValidEmail(email)) {
+            Alert.alert('Correo inválido', 'Por favor ingresa un correo electrónico válido (ejemplo@correo.com).');
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const usuarioEncontrado = await controller.login(email, password);
+
+            if (usuarioEncontrado) {
+                console.log("Usuario autenticado:", usuarioEncontrado.nombre);
+                
+                Alert.alert('¡Bienvenido!', `Hola de nuevo, ${usuarioEncontrado.nombre}`, [
+                    { 
+                        text: "CONTINUAR", 
+                        onPress: () => {
+                            // Limpiamos campos
+                            setEmail('');
+                            setPassword('');
+                            // Navegamos a la pantalla de Bienvenida
+                            navigation.replace("Welcome"); 
+                        }
+                    }
+                ]);
+            } else {
+                Alert.alert('Acceso Denegado', 'El correo o la contraseña son incorrectos, o el usuario no está registrado.');
+            }
+
+        } catch (error) {
+            console.error("Error en login:", error);
+            Alert.alert('Error', 'Hubo un problema al intentar iniciar sesión.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            
-            {/* 1. SECCIÓN SUPERIOR: LOGO */}
-            <View style={styles.headerContainer}>
-                <Image source={logoImage} style={styles.logoImage} />
-                <Text style={styles.brandText}>CLEAR PATH</Text>
-                <Text style={styles.sloganText}>APRENDER CON ESTILO</Text>
-            </View>
+        <SafeAreaView style={styles.safeArea}>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                style={styles.container}
+            >
+                <View style={styles.logoContainer}>
+                    <Image source={logoImage} style={styles.logoImage} />
+                    <Text style={styles.brandText}>CLEAR PATH</Text>
+                </View>
 
-            {/* 2. SECCIÓN CENTRAL: MENSAJE DE BIENVENIDA */}
-            <View style={styles.contentContainer}>
-                <Text style={styles.welcomeTitle}>¡Bienvenido!</Text>
-                
-                <Text style={styles.descriptionText}>
-                    Tu guía personal para aprender{'\n'}con confianza.
-                </Text>
-            </View>
+                <View style={styles.bannerContainer}>
+                    <Text style={styles.bannerText}>INICIAR SESIÓN</Text>
+                </View>
 
-            {/* 3. SECCIÓN INFERIOR: BOTÓN EMPEZAR */}
-            <View style={styles.buttonContainer}>
-                <Pressable 
-                    style={({ pressed }) => [
-                        styles.button,
-                        pressed && styles.buttonPressed // Efecto visual al presionar
-                    ]} 
-                    onPress={handleStart}
-                >
-                    <Text style={styles.buttonText}>EMPEZAR</Text>
-                </Pressable>
-            </View>
+                <View style={styles.contentContainer}>
+                    <Text style={styles.subTitle}>Ingresa tus datos</Text>
 
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.label}>Correo Electrónico</Text>
+                        <TextInput
+                            style={styles.input}
+                            value={email}
+                            onChangeText={setEmail}
+                            keyboardType="email-address"
+                            autoCapitalize="none"
+                            placeholder="ejemplo@correo.com"
+                        />
+
+                        <Text style={styles.label}>Contraseña</Text>
+                        <TextInput
+                            style={styles.input}
+                            value={password}
+                            onChangeText={setPassword}
+                            secureTextEntry={true}
+                            placeholder="********"
+                        />
+                    </View>
+
+                    <Pressable onPress={() => Alert.alert("Info", "Contacta a soporte para recuperar tu cuenta.")} style={styles.forgotPassContainer}>
+                        <Text style={styles.linkTextPink}>
+                            ¿Olvidaste tu contraseña?
+                        </Text>
+                    </Pressable>
+
+                    <Pressable 
+                        style={[styles.button, loading && styles.buttonDisabled]} 
+                        onPress={handleLogin}
+                        disabled={loading}
+                    >
+                        {loading ? (
+                            <ActivityIndicator color="#FFF" />
+                        ) : (
+                            <Text style={styles.buttonText}>Iniciar Sesión</Text>
+                        )}
+                    </Pressable>
+
+                    <View style={styles.footer}>
+                        <Text style={styles.footerText}>¿No tienes cuenta? </Text>
+                        <Pressable onPress={() => navigation.navigate("Registro")}>
+                            <Text style={styles.linkTextPink}> Registrate</Text>
+                        </Pressable>
+                    </View>
+                </View>
+
+            </KeyboardAvoidingView>
         </SafeAreaView>
     );
 }
 
-const { width } = Dimensions.get('window');
-
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'space-between', // Distribuye espacio arriba, medio y abajo
-        paddingVertical: 60, // Espacio arriba y abajo de la pantalla
-    },
-    
-    // --- Header ---
-    headerContainer: {
-        alignItems: 'center',
-        marginTop: 20,
-    },
-    logoImage: {
-        width: 120, 
-        height: 80,
-        resizeMode: 'contain',
-    },
-    brandText: {
-        fontSize: 18,
-        color: '#FFAB91', // Tono salmón del logo
-        letterSpacing: 3,
-        fontWeight: '300',
-        marginTop: 5,
-    },
-    sloganText: {
-        fontSize: 10,
-        color: '#DDD', // Texto muy clarito debajo del logo
-        letterSpacing: 1,
-        marginTop: 2,
-    },
-
-    // --- Contenido Central ---
-    contentContainer: {
-        alignItems: 'center',
-        width: '80%',
-    },
-    welcomeTitle: {
-        fontSize: 38, // Tamaño grande como en el PDF
-        fontWeight: 'bold',
-        color: '#FF80AB', // Color ROSA del diseño
-        marginBottom: 20,
-    },
-    descriptionText: {
-        fontSize: 18,
-        color: '#666',
-        textAlign: 'center',
-        lineHeight: 26, // Espaciado entre líneas para mejor lectura
-    },
-
-    // --- Botón ---
-    buttonContainer: {
-        width: '100%',
-        alignItems: 'center',
-        marginBottom: 40,
-    },
-    button: {
-        backgroundColor: '#FFCC80', // Naranja claro/durazno del diseño
-        paddingVertical: 20,
-        paddingHorizontal: 60,
-        borderRadius: 20, // Bordes muy redondeados
-        width: '80%', // Ocupa el 80% del ancho
-        alignItems: 'center',
-        elevation: 3, // Sombra en Android
-        shadowColor: '#000', // Sombra en iOS
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 3,
-    },
-    buttonPressed: {
-        backgroundColor: '#FFB74D', // Se oscurece un poco al presionar
-        opacity: 0.9,
-    },
-    buttonText: {
-        color: '#FFF',
-        fontSize: 22,
-        fontWeight: 'bold',
-        letterSpacing: 1,
-        textTransform: 'uppercase',
-    },
+    safeArea: { 
+        flex: 1, 
+        backgroundColor: '#fff' 
+        },
+    container: { 
+        flex: 1, 
+        alignItems: 'center', 
+        width: '100%' },
+    logoContainer: { marginTop: 40, marginBottom: 20, alignItems: 'center' },
+    logoImage: { width: 100, height: 60, resizeMode: 'contain' },
+    brandText: { fontSize: 16, color: '#FFAB91', letterSpacing: 2, marginTop: 5, fontWeight: '300' },
+    bannerContainer: { width: '100%', backgroundColor: '#FFCC80', paddingVertical: 10, alignItems: 'center', marginBottom: 30 },
+    bannerText: { fontSize: 18, fontWeight: 'bold', color: '#000', textTransform: 'uppercase' },
+    contentContainer: { width: '85%', alignItems: 'center' },
+    subTitle: { fontSize: 16, color: '#555', marginBottom: 20 },
+    inputContainer: { width: '100%' },
+    label: { fontSize: 14, color: '#333', marginBottom: 5, fontWeight: '500', marginLeft: 5 },
+    input: { backgroundColor: '#F5F5F5', borderRadius: 20, paddingVertical: 10, paddingHorizontal: 15, marginBottom: 20, fontSize: 15, color: '#333' },
+    forgotPassContainer: { alignSelf: 'flex-end', marginBottom: 30 },
+    linkTextPink: { color: '#FF80AB', fontSize: 14, fontWeight: '400' },
+    button: { backgroundColor: '#FF9800', paddingVertical: 15, borderRadius: 25, width: '100%', alignItems: 'center', marginBottom: 20, elevation: 2 },
+    buttonDisabled: { backgroundColor: '#FFCC80' },
+    buttonText: { color: '#FFFFFF', fontSize: 18, fontWeight: 'bold' },
+    footer: { flexDirection: 'row', marginTop: 10 },
+    footerText: { fontSize: 14, color: '#555' },
 });

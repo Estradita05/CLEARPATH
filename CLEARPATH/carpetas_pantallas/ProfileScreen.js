@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, Pressable, SafeAreaView, ScrollView } from 'react-native';
 
-const logoImage = require('../assets/adaptive-icon.png'); 
+const logoImage = require('../assets/image.png'); 
 
 export default function ProfileScreen({ navigation }) {
 
@@ -25,11 +25,10 @@ export default function ProfileScreen({ navigation }) {
                         <Text style={styles.backButtonText}>{'<'}</Text>
                     </Pressable>
                     <Text style={styles.bannerText}>MI PERFIL</Text>
-                    <View style={{width: 20}} /> {/* Espacio para centrar el texto */}
+                    <View style={{width: 20}} /> 
                 </View>
 
                 <View style={styles.profileInfo}>
-                    {/* Icono de usuario grande */}
                     <View style={styles.avatarContainer}>
                         <View style={styles.avatarPlaceholder}>
                             <Text style={{fontSize: 50}}>👤</Text>
@@ -48,18 +47,18 @@ export default function ProfileScreen({ navigation }) {
                     <Text style={styles.sectionTitle}>Estadísticas de uso</Text>
                     
                     <View style={styles.statRow}>
-                        <Text style={styles.statLabel}>Rutas Completadas:</Text>
-                        <Text style={styles.statValue}>25</Text>
+                        <Text style={styles.statLabel}>Materias pendientes:</Text>
+                        <Text style={styles.statValue}>5</Text>
                     </View>
                     
                     <View style={styles.statRow}>
-                        <Text style={styles.statLabel}>Distancia Total:</Text>
-                        <Text style={styles.statValue}>120KM</Text>
+                        <Text style={styles.statLabel}>Materias concluidas:</Text>
+                        <Text style={styles.statValue}>12</Text>
                     </View>
                     
                     <View style={styles.statRow}>
-                        <Text style={styles.statLabel}>Tiempo de Guía:</Text>
-                        <Text style={styles.statValue}>10hrs</Text>
+                        <Text style={styles.statLabel}>Tiempo de estudio:</Text>
+                        <Text style={styles.statValue}>108hrs</Text>
                     </View>
                 </View>
 
@@ -69,14 +68,7 @@ export default function ProfileScreen({ navigation }) {
 
             </ScrollView>
 
-            <View style={styles.fakeBottomBar}>
-                 {/* El ícono de perfil está activo (fondo rosa) */}
-                <View style={[styles.barItem, styles.activeItem]}><Text>👤</Text></View>
-                <View style={styles.barItem}><Text>🗄️</Text></View>
-                <View style={styles.barItem}><Text>🧘</Text></View>
-                <View style={styles.barItem}><Text>☰</Text></View>
-                <View style={styles.barItem}><Text>⚙️</Text></View>
-            </View>
+        
 
         </SafeAreaView>
     );
@@ -95,9 +87,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
         marginBottom: 10,
     },
-    logoImage: {
-        width: 60, height: 40, resizeMode: 'contain',
-    },
+    logoImage: { width: 200, height: 100, resizeMode: 'contain' },
     bannerContainer: {
         backgroundColor: '#FFCC80',
         paddingVertical: 12,

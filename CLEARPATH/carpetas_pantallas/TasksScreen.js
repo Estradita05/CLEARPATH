@@ -25,6 +25,8 @@ export default function TaskScreen({ navigation }) {
         ));
     };
 
+const logoImage = require('../assets/image.png'); 
+
     return (
         <SafeAreaView style={styles.safeArea}>
             <ScrollView contentContainerStyle={styles.container}>

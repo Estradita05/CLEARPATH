@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, Pressable, SafeAreaView, ScrollView } from 'react-native';
 
-const logoImage = require('../assets/adaptive-icon.png'); 
+const logoImage = require('../assets/image.png'); 
 
 export default function HelpScreen({ navigation }) {
     return (
@@ -68,9 +68,7 @@ const styles = StyleSheet.create({
     header: {
         alignItems: 'center', marginTop: 10, marginBottom: 10,
     },
-    logoImage: {
-        width: 60, height: 40, resizeMode: 'contain',
-    },
+  logoImage: { width: 200, height: 100, resizeMode: 'contain' },
     bannerContainer: {
         backgroundColor: '#FFCC80',
         paddingVertical: 12,

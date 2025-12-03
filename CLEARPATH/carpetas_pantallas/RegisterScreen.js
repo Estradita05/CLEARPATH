@@ -1,15 +1,23 @@
 import React, { useState } from 'react';
-import { 
-    View, Text, StyleSheet, TextInput, Pressable,
-    SafeAreaView, Image, ScrollView, Alert,
-    ActivityIndicator,
+import { View, 
+    Text, 
+    StyleSheet, 
+    TextInput, 
+    Pressable, 
+    SafeAreaView, 
+    Image, 
+    ScrollView,
+    Alert,
+    ActivityIndicator
+
 } from 'react-native';
 
 import db from '../database/db';
 import { UsuarioController } from '../controllers/UsuarioController';
 
-// Solo una vez
-const logoImage = require('../assets/adaptive-icon.png');
+
+const logoImage = require('../assets/image.png'); 
+
 
 export default function RegisterScreen({ navigation }) {
 
@@ -26,40 +34,64 @@ export default function RegisterScreen({ navigation }) {
 
     const controller = new UsuarioController();
 
+    const isValidEmail = (email) => {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    };
+
     const handleRegister = async () => {
-        // Validaciones visuales rápidas
-        if (!nombre || !email || !password) {
-            Alert.alert('Campos incompletos', 'Por favor llena al menos Nombre, Email y Contraseña.');
+        if (nombre.trim() === '' || email.trim() === '' || password.trim() === '') {
+            Alert.alert('Faltan datos', 'Por favor completa Nombre, Email y Contraseña.');
+            return;
+        }
+
+        if (!isValidEmail(email)) {
+            Alert.alert('Correo inválido', 'El formato del correo no es correcto.');
+            return;
+        }
+
+        if (password.length < 6) {
+            Alert.alert('Contraseña corta', 'La contraseña debe tener al menos 6 caracteres.');
             return;
         }
 
         setLoading(true); 
+
         try {
-            
             await controller.registrar(
                 nombre, 
                 apellido, 
                 email, 
                 password, 
-                fechaNacimiento
+               
             );
 
-            
             Alert.alert(
-                '¡Cuenta Creada!', 
-                'Tu usuario ha sido registrado exitosamente en la base de datos.',
+                '¡Bienvenido a Clear Path!', 
+                'Tu cuenta ha sido creada exitosamente.',
                 [
                     { 
-                        text: "Ir a Iniciar Sesión", 
+                        text: "Iniciar Sesión", 
                         onPress: () => navigation.navigate('Login') 
                     }
                 ]
             );
 
         } catch (error) {
-            
-            console.error(error);
-            Alert.alert('Error al registrar', error.message || 'Ocurrió un problema desconocido.');
+            console.log("Error detectado:", error.message); 
+           
+            if (error.message && (error.message.includes('UNIQUE') || error.message.includes('constraint failed'))) {
+                Alert.alert(
+                    'Correo ya registrado', 
+                    [
+                        { text: "Entendido" },
+                        { text: "Ir a Login", onPress: () => navigation.navigate('Login') }
+                    ]
+                );
+            } else {
+                // Cualquier otro error
+                Alert.alert('Error', 'No se pudo crear la cuenta. Por favor intenta de nuevo.');
+            }
         } finally {
             setLoading(false); 
         }
@@ -73,7 +105,7 @@ export default function RegisterScreen({ navigation }) {
                 {/* LOGO */}
                 <View style={styles.logoContainer}>
                     <Image source={logoImage} style={styles.logoImage} />
-                    <Text style={styles.brandText}>CLEAR PATH</Text>
+                  
                 </View>
 
                 <Text style={styles.title}>¡ÚNETE A CLEAR PATH!</Text>
@@ -81,49 +113,19 @@ export default function RegisterScreen({ navigation }) {
                 <View style={styles.formContainer}>
 
                     <Text style={styles.label}>Nombre *</Text>
-                    <TextInput 
-                        style={styles.input} 
-                        value={nombre}
-                        onChangeText={setNombre}
-                        placeholder="Ej. Juan"
-                    />
+                    <TextInput style={styles.input} value={nombre} onChangeText={setNombre} placeholder="Ej. Juan" />
 
                     <Text style={styles.label}>Apellido</Text>
-                    <TextInput 
-                        style={styles.input} 
-                        value={apellido}
-                        onChangeText={setApellido}
-                        placeholder="Ej. Pérez"
-                    />
+                    <TextInput style={styles.input} value={apellido} onChangeText={setApellido} placeholder="Ej. Pérez" />
 
                     <Text style={styles.label}>E-mail *</Text>
-                    <TextInput 
-                        style={styles.input} 
-                        value={email}
-                        onChangeText={setEmail}
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                        placeholder="ejemplo@correo.com"
-                    />
+
+                    <TextInput style={styles.input} value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" placeholder="ejemplo@correo.com" />
 
                     <Text style={styles.label}>Crear contraseña *</Text>
-                    <TextInput 
-                        style={styles.input}
-                        value={password}
-                        onChangeText={setPassword}
-                        secureTextEntry
-                        placeholder="Mínimo 6 caracteres"
-                    />
+                    <TextInput style={styles.input} value={password} onChangeText={setPassword} secureTextEntry placeholder="Mínimo 6 caracteres" />
 
-                    <Text style={styles.label}>Fecha de nacimiento</Text>
-                    <TextInput 
-                        style={styles.input}
-                        value={fechaNacimiento}
-                        onChangeText={setFechaNacimiento}
-                        placeholder="DD/MM/AAAA"
-                    />
 
-                    {/* BOTÓN */}
                     <Pressable 
                         style={[styles.button, loading && styles.buttonDisabled]} 
                         onPress={handleRegister}
@@ -143,6 +145,7 @@ export default function RegisterScreen({ navigation }) {
     );
 }
 const styles = StyleSheet.create({
+
     safeArea: { 
         flex: 1, 
         backgroundColor: '#fff' 
@@ -201,4 +204,5 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textTransform: 'uppercase',
     },
+
 });

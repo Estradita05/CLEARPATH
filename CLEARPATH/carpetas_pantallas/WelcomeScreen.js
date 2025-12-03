@@ -11,11 +11,10 @@ import {
     ScrollView 
 } from 'react-native';
 
-const logoImage = require('../assets/adaptive-icon.png'); 
-
-export default function HomeScreen({ navigation }) {
-
+const logoImage = require('../assets/image.png'); 
+export default function WelcomeScreen({ navigation }) {
     return (
+
         <SafeAreaView style={styles.safeArea}>
             <ScrollView contentContainerStyle={styles.container}>
 
@@ -90,11 +89,13 @@ export default function HomeScreen({ navigation }) {
 
             </ScrollView>
 
+
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
+
     safeArea: {
         flex: 1,
         backgroundColor: "#fff",
@@ -184,4 +185,5 @@ const styles = StyleSheet.create({
         letterSpacing: 1,
     },
 });
+
 

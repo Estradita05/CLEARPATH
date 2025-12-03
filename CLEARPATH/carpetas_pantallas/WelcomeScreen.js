@@ -1,133 +1,184 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, Pressable, SafeAreaView, Dimensions } from 'react-native';
+import { 
+    View, 
+    Text, 
+    StyleSheet, 
+    Pressable, 
+    SafeAreaView, 
+    Image,
+    ScrollView 
+} from 'react-native';
 
-// Asegúrate de que la ruta de tu logo sea correcta
 const logoImage = require('../assets/adaptive-icon.png'); 
 
-export default function WelcomeScreen({ navigation }) {
-    
-    // Función para ir al Login cuando presionan "EMPEZAR"
-    const handleStart = () => {
-        navigation.navigate('Login');
-    };
+export default function HomeScreen({ navigation }) {
 
     return (
-        <SafeAreaView style={styles.container}>
-            
-            {/* 1. SECCIÓN SUPERIOR: LOGO */}
-            <View style={styles.headerContainer}>
-                <Image source={logoImage} style={styles.logoImage} />
-                <Text style={styles.brandText}>CLEAR PATH</Text>
-                <Text style={styles.sloganText}>APRENDER CON ESTILO</Text>
-            </View>
+        <SafeAreaView style={styles.safeArea}>
+            <ScrollView contentContainerStyle={styles.container}>
 
-            {/* 2. SECCIÓN CENTRAL: MENSAJE DE BIENVENIDA */}
-            <View style={styles.contentContainer}>
-                <Text style={styles.welcomeTitle}>¡Bienvenido!</Text>
-                
-                <Text style={styles.descriptionText}>
-                    Tu guía personal para aprender{'\n'}con confianza.
+                {/* HEADER */}
+                <View style={styles.header}>
+                    <Image source={logoImage} style={styles.logoSmall} />
+                    <Text style={styles.headerText}>CLEAR PATH</Text>
+                </View>
+
+                {/* TITULO BIENVENIDA */}
+                <Text style={styles.title}>Tu espacio de aprendizaje</Text>
+                <Text style={styles.subtitle}>
+                    Elige una opción para continuar
                 </Text>
-            </View>
 
-            {/* 3. SECCIÓN INFERIOR: BOTÓN EMPEZAR */}
-            <View style={styles.buttonContainer}>
+                {/* MENÚ PRINCIPAL */}
+                <View style={styles.menuContainer}>
+
+                    {/* PERFIL */}
+                    <Pressable 
+                        style={styles.card} 
+                        onPress={() => navigation.navigate("Perfil")}
+                    >
+                        <Text style={styles.cardTitle}>Perfil</Text>
+                        <Text style={styles.cardDescription}>
+                            Edita tu información personal
+                        </Text>
+                    </Pressable>
+
+                    {/* CURSOS */}
+                    <Pressable 
+                        style={styles.card} 
+                        onPress={() => navigation.navigate("Cursos")}
+                    >
+                        <Text style={styles.cardTitle}>Cursos</Text>
+                        <Text style={styles.cardDescription}>
+                            Explora cursos disponibles
+                        </Text>
+                    </Pressable>
+
+                    {/* TAREAS */}
+                    <Pressable 
+                        style={styles.card} 
+                        onPress={() => navigation.navigate("Tasks")}
+                    >
+                        <Text style={styles.cardTitle}>Tareas</Text>
+                        <Text style={styles.cardDescription}>
+                            Gestiona tus actividades diarias
+                        </Text>
+                    </Pressable>
+
+                    {/* AJUSTES */}
+                    <Pressable 
+                        style={styles.card}
+                        onPress={() => navigation.navigate("Ajustes")}
+                    >
+                        <Text style={styles.cardTitle}>Ajustes</Text>
+                        <Text style={styles.cardDescription}>
+                            Configura tu app
+                        </Text>
+                    </Pressable>
+
+                </View>
+
+                {/* BOTÓN PRINCIPAL */}
                 <Pressable 
-                    style={({ pressed }) => [
-                        styles.button,
-                        pressed && styles.buttonPressed // Efecto visual al presionar
-                    ]} 
-                    onPress={handleStart}
+                    style={styles.bigButton}
+                    onPress={() => navigation.navigate("Cursos")}
                 >
-                    <Text style={styles.buttonText}>EMPEZAR</Text>
+                    <Text style={styles.bigButtonText}>CONTINUAR APRENDIENDO</Text>
                 </Pressable>
-            </View>
 
+            </ScrollView>
         </SafeAreaView>
     );
 }
 
-const { width } = Dimensions.get('window');
-
 const styles = StyleSheet.create({
-    container: {
+    safeArea: {
         flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'space-between', // Distribuye espacio arriba, medio y abajo
-        paddingVertical: 60, // Espacio arriba y abajo de la pantalla
+        backgroundColor: "#fff",
     },
-    
-    // --- Header ---
-    headerContainer: {
-        alignItems: 'center',
-        marginTop: 20,
-    },
-    logoImage: {
-        width: 120, 
-        height: 80,
-        resizeMode: 'contain',
-    },
-    brandText: {
-        fontSize: 18,
-        color: '#FFAB91', // Tono salmón del logo
-        letterSpacing: 3,
-        fontWeight: '300',
-        marginTop: 5,
-    },
-    sloganText: {
-        fontSize: 10,
-        color: '#DDD', // Texto muy clarito debajo del logo
-        letterSpacing: 1,
-        marginTop: 2,
-    },
-
-    // --- Contenido Central ---
-    contentContainer: {
-        alignItems: 'center',
-        width: '80%',
-    },
-    welcomeTitle: {
-        fontSize: 38, // Tamaño grande como en el PDF
-        fontWeight: 'bold',
-        color: '#FF80AB', // Color ROSA del diseño
-        marginBottom: 20,
-    },
-    descriptionText: {
-        fontSize: 18,
-        color: '#666',
-        textAlign: 'center',
-        lineHeight: 26, // Espaciado entre líneas para mejor lectura
-    },
-
-    // --- Botón ---
-    buttonContainer: {
-        width: '100%',
-        alignItems: 'center',
-        marginBottom: 40,
-    },
-    button: {
-        backgroundColor: '#FFCC80', // Naranja claro/durazno del diseño
+    container: {
         paddingVertical: 20,
-        paddingHorizontal: 60,
-        borderRadius: 20, // Bordes muy redondeados
-        width: '80%', // Ocupa el 80% del ancho
-        alignItems: 'center',
-        elevation: 3, // Sombra en Android
-        shadowColor: '#000', // Sombra en iOS
+        paddingHorizontal: 20,
+    },
+
+    // HEADER
+    header: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: 25,
+    },
+    logoSmall: {
+        width: 45,
+        height: 30,
+        resizeMode: "contain",
+        marginRight: 10,
+    },
+    headerText: {
+        fontSize: 20,
+        color: "#FFAB91",
+        fontWeight: "600",
+        letterSpacing: 2,
+    },
+
+    // TITULOS
+    title: {
+        fontSize: 24,
+        fontWeight: "bold",
+        color: "#FF80AB",
+        textAlign: "center",
+        marginBottom: 5,
+    },
+    subtitle: {
+        fontSize: 16,
+        textAlign: "center",
+        color: "#444",
+        marginBottom: 25,
+    },
+
+    // CONTENEDOR DE LAS TARJETAS
+    menuContainer: {
+        marginBottom: 30,
+    },
+
+    // TARJETAS DEL MENÚ
+    card: {
+        backgroundColor: "#FFF",
+        padding: 20,
+        borderRadius: 20,
+        marginBottom: 15,
+        elevation: 3, // Android
+        shadowColor: "#000", // iOS
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 3,
     },
-    buttonPressed: {
-        backgroundColor: '#FFB74D', // Se oscurece un poco al presionar
-        opacity: 0.9,
+    cardTitle: {
+        fontSize: 20,
+        fontWeight: "bold",
+        color: "#FF80AB",
+        marginBottom: 5,
     },
-    buttonText: {
-        color: '#FFF',
-        fontSize: 22,
-        fontWeight: 'bold',
+    cardDescription: {
+        fontSize: 14,
+        color: "#555",
+    },
+
+    // BOTÓN PRINCIPAL INFERIOR
+    bigButton: {
+        backgroundColor: "#FFCC80",
+        paddingVertical: 18,
+        borderRadius: 30,
+        alignItems: "center",
+        marginTop: 10,
+        marginBottom: 40,
+        elevation: 3,
+    },
+    bigButtonText: {
+        fontSize: 18,
+        color: "#FFF",
+        fontWeight: "bold",
         letterSpacing: 1,
-        textTransform: 'uppercase',
     },
 });
+

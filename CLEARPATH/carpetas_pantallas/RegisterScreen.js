@@ -1,16 +1,11 @@
 import React, { useState } from 'react';
 import { 
-    View, 
-    Text, 
-    StyleSheet, 
-    TextInput, 
-    Pressable, 
-    SafeAreaView, 
-    Image, 
-    ScrollView 
+    View, Text, StyleSheet, TextInput, Pressable,
+    SafeAreaView, Image, ScrollView, Alert 
 } from 'react-native';
+import db from '../database/db'; 
 
-const logoImage = require('../assets/adaptive-icon.png'); 
+const logoImage = require('../assets/adaptive-icon.png');
 
 export default function RegisterScreen({ navigation }) {
     const [nombre, setNombre] = useState('');
@@ -20,15 +15,35 @@ export default function RegisterScreen({ navigation }) {
     const [fechaNacimiento, setFechaNacimiento] = useState('');
 
     const handleRegister = () => {
-        // Aquí iría la lógica de registro con SQLite
-        console.log("Registrando usuario...");
-        navigation.goBack(); // Por ahora regresa al Login
+        if (!nombre || !apellido || !email || !password || !fechaNacimiento) {
+            Alert.alert("Error", "Por favor llena todos los campos");
+            return;
+        }
+
+        db.transaction((tx) => {
+            tx.executeSql(
+                `INSERT INTO usuarios (nombre, apellido, email, password, fechaNacimiento)
+                 VALUES (?, ?, ?, ?, ?);`,
+                [nombre, apellido, email, password, fechaNacimiento],
+                () => {
+                    Alert.alert(
+                        "Cuenta creada",
+                        "Tu registro fue exitoso",
+                        [{ text: "OK", onPress: () => navigation.goBack() }]
+                    );
+                },
+                (txObj, error) => {
+                    console.log(error);
+                    Alert.alert("Error", "Este correo ya está registrado");
+                }
+            );
+        });
     };
 
     return (
         <SafeAreaView style={styles.safeArea}>
             <ScrollView contentContainerStyle={styles.scrollContainer}>
-                
+
                 {/* LOGO */}
                 <View style={styles.logoContainer}>
                     <Image source={logoImage} style={styles.logoImage} />
@@ -41,18 +56,10 @@ export default function RegisterScreen({ navigation }) {
                 {/* FORMULARIO */}
                 <View style={styles.formContainer}>
                     <Text style={styles.label}>Nombre</Text>
-                    <TextInput 
-                        style={styles.input} 
-                        value={nombre}
-                        onChangeText={setNombre}
-                    />
+                    <TextInput style={styles.input} value={nombre} onChangeText={setNombre} />
 
                     <Text style={styles.label}>Apellido</Text>
-                    <TextInput 
-                        style={styles.input} 
-                        value={apellido}
-                        onChangeText={setApellido}
-                    />
+                    <TextInput style={styles.input} value={apellido} onChangeText={setApellido} />
 
                     <Text style={styles.label}>E-mail</Text>
                     <TextInput 
@@ -62,9 +69,9 @@ export default function RegisterScreen({ navigation }) {
                         keyboardType="email-address"
                     />
 
-                    <Text style={styles.label}>Crear contraseña</Text>
+                    <Text style={styles.label}>Contraseña</Text>
                     <TextInput 
-                        style={styles.input} 
+                        style={styles.input}
                         value={password}
                         onChangeText={setPassword}
                         secureTextEntry
@@ -72,14 +79,13 @@ export default function RegisterScreen({ navigation }) {
 
                     <Text style={styles.label}>Fecha de nacimiento</Text>
                     <TextInput 
-                        style={styles.input} 
+                        style={styles.input}
                         value={fechaNacimiento}
                         onChangeText={setFechaNacimiento}
                         placeholder="DD/MM/AAAA"
-                        placeholderTextColor="#AAA"
                     />
 
-                    {/* BOTÓN CREAR CUENTA */}
+                    {/* BOTÓN REGISTRO */}
                     <Pressable style={styles.button} onPress={handleRegister}>
                         <Text style={styles.buttonText}>CREAR CUENTA</Text>
                     </Pressable>
@@ -91,70 +97,25 @@ export default function RegisterScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-    safeArea: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
-    scrollContainer: {
-        alignItems: 'center',
-        paddingBottom: 40,
-    },
-    logoContainer: {
-        marginTop: 30,
-        marginBottom: 10,
-        alignItems: 'center',
-    },
-    logoImage: {
-        width: 80, 
-        height: 50,
-        resizeMode: 'contain',
-    },
-    brandText: {
-        fontSize: 14,
-        color: '#FFAB91',
-        letterSpacing: 2,
-        marginTop: 5,
-        fontWeight: '300',
-    },
-    title: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        color: '#000',
-        marginBottom: 30,
-        marginTop: 10,
-    },
-    formContainer: {
-        width: '85%',
-    },
-    label: {
-        fontSize: 16,
-        color: '#333',
-        marginBottom: 8,
-        fontWeight: '500',
-    },
+    safeArea: { flex: 1, backgroundColor: '#fff' },
+    scrollContainer: { alignItems: 'center', paddingBottom: 40 },
+    logoContainer: { marginTop: 30, alignItems: 'center' },
+    logoImage: { width: 80, height: 50, resizeMode: 'contain' },
+    brandText: { color: '#FFAB91', letterSpacing: 2, marginTop: 5 },
+    title: { fontSize: 22, fontWeight: 'bold', marginVertical: 20 },
+    formContainer: { width: '85%' },
+    label: { marginBottom: 5, fontWeight: '500' },
     input: {
         backgroundColor: '#F5F5F5',
         borderRadius: 25,
-        paddingVertical: 12,
-        paddingHorizontal: 20,
-        marginBottom: 20,
-        fontSize: 15,
-        color: '#333',
-        borderWidth: 1,
-        borderColor: '#EEE',
+        padding: 12,
+        marginBottom: 20
     },
     button: {
-        backgroundColor: '#FFCC80', // Naranja claro
+        backgroundColor: '#FFCC80',
         paddingVertical: 15,
         borderRadius: 25,
-        alignItems: 'center',
-        marginTop: 20,
-        elevation: 2,
+        alignItems: 'center'
     },
-    buttonText: {
-        color: '#FFF',
-        fontSize: 18,
-        fontWeight: 'bold',
-        textTransform: 'uppercase',
-    },
+    buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 }
 });

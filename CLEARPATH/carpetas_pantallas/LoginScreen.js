@@ -12,53 +12,47 @@ import {
     Image, 
     ActivityIndicator 
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-// IMPORTANTE: Asegúrate de que esta imagen exista en tu carpeta assets
+import db from '../database/db'; // IMPORTANTE
 const logoImage = require('../assets/adaptive-icon.png'); 
 
 export default function LoginScreen({ navigation }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    const [isModalVisible, setModalVisible] = useState(false);
 
-    const handleLogin = async () => {
-        // 1. Validaciones básicas
-        if (email.trim() === '') {
-            Alert.alert('Error', 'Por favor ingresa tu correo.');
-            return;
-        } 
-        if (password.trim() === '') {
-            Alert.alert('Error', 'Por favor ingresa tu contraseña.');
+    const handleLogin = () => {
+        if (email.trim() === '' || password.trim() === '') {
+            Alert.alert("Error", "Por favor llena todos los campos.");
             return;
         }
 
         setLoading(true);
 
-        try {
-            // AQUÍ IRÁ TU LÓGICA DE BASE DE DATOS MÁS ADELANTE
-            // Por ahora simulamos una espera de 1 segundo
-            setTimeout(() => {
-                setLoading(false);
-                
-                // Mensaje de éxito
-                Alert.alert('¡Bienvenido!', 'Has iniciado sesión correctamente', [
-                    { 
-                        text: "CONTINUAR", 
-                        onPress: () => {
-                            // CORRECCIÓN: Ahora sí navega a la pantalla 'Welcome'
-                            navigation.replace("Welcome"); 
-                        }
-                    }
-                ]);
-            }, 1500);
+        db.transaction((tx) => {
+            tx.executeSql(
+                `SELECT * FROM usuarios WHERE email = ? AND password = ?;`,
+                [email, password],
+                (txObj, { rows }) => {
+                    setLoading(false);
 
-        } catch (error) {
-            console.error("Error en login:", error);
-            Alert.alert('Error', 'Hubo un problema al iniciar sesión');
-            setLoading(false);
-        }
+                    if (rows.length > 0) {
+                        Alert.alert("¡Bienvenido!", "Inicio de sesión exitoso", [
+                            {
+                                text: "CONTINUAR",
+                                onPress: () => navigation.replace("Welcome")
+                            }
+                        ]);
+                    } else {
+                        Alert.alert("Error", "Correo o contraseña incorrectos");
+                    }
+                },
+                (txObj, error) => {
+                    setLoading(false);
+                    console.log("Error en login", error);
+                    Alert.alert("Error", "Hubo un problema con la base de datos");
+                }
+            );
+        });
     };
 
     return (
@@ -73,7 +67,7 @@ export default function LoginScreen({ navigation }) {
                     <Text style={styles.brandText}>CLEAR PATH</Text>
                 </View>
 
-                {/* BANNER NARANJA */}
+                {/* BANNER */}
                 <View style={styles.bannerContainer}>
                     <Text style={styles.bannerText}>INICIAR SESIÓN</Text>
                 </View>
@@ -97,18 +91,11 @@ export default function LoginScreen({ navigation }) {
                             style={styles.input}
                             value={password}
                             onChangeText={setPassword}
-                            secureTextEntry={true}
+                            secureTextEntry
                         />
                     </View>
 
-                    {/* OLVIDASTE CONTRASEÑA */}
-                    <Pressable onPress={() => console.log("Recuperar contraseña")} style={styles.forgotPassContainer}>
-                        <Text style={styles.linkTextPink}>
-                            ¿Olvidaste tu contraseña?
-                        </Text>
-                    </Pressable>
-
-                    {/* BOTÓN INICIAR SESIÓN */}
+                    {/* BOTÓN */}
                     <Pressable 
                         style={[styles.button, loading && styles.buttonDisabled]} 
                         onPress={handleLogin}
@@ -123,7 +110,7 @@ export default function LoginScreen({ navigation }) {
 
                     {/* REGISTRARSE */}
                     <View style={styles.footer}>
-                        <Text style={styles.footerText}>¿No tienes cuenta? </Text>
+                        <Text style={styles.footerText}>¿No tienes cuenta?</Text>
                         <Pressable onPress={() => navigation.navigate("Registro")}>
                             <Text style={styles.linkTextPink}> Registrate</Text>
                         </Pressable>
@@ -203,15 +190,6 @@ const styles = StyleSheet.create({
         fontSize: 15,
         color: '#333',
     },
-    forgotPassContainer: {
-        alignSelf: 'flex-end',
-        marginBottom: 30,
-    },
-    linkTextPink: {
-        color: '#FF80AB', 
-        fontSize: 14,
-        fontWeight: '400',
-    },
     button: {
         backgroundColor: '#FF9800', 
         paddingVertical: 15,
@@ -219,7 +197,6 @@ const styles = StyleSheet.create({
         width: '100%',
         alignItems: 'center',
         marginBottom: 20,
-        elevation: 2,
     },
     buttonDisabled: {
         backgroundColor: '#FFCC80',
@@ -236,5 +213,8 @@ const styles = StyleSheet.create({
     footerText: {
         fontSize: 14,
         color: '#555',
+    },
+    linkTextPink: {
+        color: '#FF80AB',
     },
 });

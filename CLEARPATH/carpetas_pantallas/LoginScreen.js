@@ -1,11 +1,23 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Pressable, KeyboardAvoidingView, Platform, 
-Alert,SafeAreaView, Image,ActivityIndicator } from 'react-native';
+import { 
+    View, 
+    Text, 
+    StyleSheet, 
+    TextInput, 
+    Pressable, 
+    KeyboardAvoidingView, 
+    Platform, 
+    Alert, 
+    SafeAreaView, 
+    Image, 
+    ActivityIndicator 
+} from 'react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UsuarioController } from '../controllers/UsuarioController';
 
-const logoImage = require('../assets/Logo.jpeg'); 
+// Asegúrate de que esta imagen exista
+const logoImage = require('../assets/image.png'); 
 
 export default function LoginScreen({ navigation }) {
     const [email, setEmail] = useState('');
@@ -14,30 +26,23 @@ export default function LoginScreen({ navigation }) {
 
     const controller = new UsuarioController();
 
-    const isValidEmail = (email) => {
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return re.test(email);
-    };
-
     const handleLogin = async () => {
-        
+        console.log("Botón Iniciar Sesión presionado"); // DEPURACIÓN
+
         if (email.trim() === '' || password.trim() === '') {
             Alert.alert('Campos incompletos', 'Por favor ingresa tu correo y contraseña.');
-            return;
-        }
-
-        if (!isValidEmail(email)) {
-            Alert.alert('Correo inválido', 'Por favor ingresa un correo electrónico válido (ejemplo@correo.com).');
             return;
         }
 
         setLoading(true);
 
         try {
+            console.log(`Intentando login con: ${email}`); 
+            
             const usuarioEncontrado = await controller.login(email, password);
 
             if (usuarioEncontrado) {
-                console.log("Usuario autenticado:", usuarioEncontrado.nombre);
+                console.log("Usuario encontrado:", usuarioEncontrado.nombre); 
                 
                 await AsyncStorage.setItem('usuario_sesion', JSON.stringify(usuarioEncontrado));
 
@@ -45,8 +50,7 @@ export default function LoginScreen({ navigation }) {
                     { 
                         text: "CONTINUAR", 
                         onPress: () => {
-                            setEmail('');
-                            setPassword('');
+                            console.log("Navegando a Welcome..."); 
                             navigation.reset({
                                 index: 0,
                                 routes: [{ name: 'Welcome' }],
@@ -55,12 +59,13 @@ export default function LoginScreen({ navigation }) {
                     }
                 ]);
             } else {
-                Alert.alert('Acceso Denegado', 'El correo o la contraseña son incorrectos, o el usuario no está registrado.');
+                console.log("Usuario no encontrado o contraseña incorrecta"); 
+                Alert.alert('Acceso Denegado', 'El correo o la contraseña son incorrectos.');
             }
 
         } catch (error) {
-            console.error("Error en login:", error);
-            Alert.alert('Error', 'Hubo un problema al intentar iniciar sesión.');
+            console.error("Error crítico en login:", error);
+            Alert.alert('Error', 'Hubo un problema técnico al iniciar sesión.');
         } finally {
             setLoading(false);
         }
@@ -74,7 +79,7 @@ export default function LoginScreen({ navigation }) {
             >
                 <View style={styles.logoContainer}>
                     <Image source={logoImage} style={styles.logoImage} />
-                    <Text style={styles.brandText}>CLEAR PATH</Text>
+                    
                 </View>
 
                 <View style={styles.bannerContainer}>
@@ -105,7 +110,7 @@ export default function LoginScreen({ navigation }) {
                         />
                     </View>
 
-                    <Pressable onPress={() => Alert.alert("Info", "Contacta a soporte para recuperar tu cuenta.")} style={styles.forgotPassContainer}>
+                    <Pressable style={styles.forgotPassContainer}>
                         <Text style={styles.linkTextPink}>
                             ¿Olvidaste tu contraseña?
                         </Text>
@@ -151,12 +156,7 @@ const styles = StyleSheet.create({
         marginBottom: 20, 
         alignItems: 'center' 
     },
-    // CAMBIO: Aumenté el tamaño del logo como pediste
-    logoImage: { 
-        width: 180, // Antes era 100
-        height: 120, // Antes era 60
-        resizeMode: 'contain' 
-    },
+    logoImage: { width: 200, height: 100, resizeMode: 'contain' },
     brandText: { 
         fontSize: 16, 
         color: '#FFAB91', 

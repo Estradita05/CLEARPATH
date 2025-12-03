@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable, SafeAreaView, ScrollView, Image } from 'react-native';
 
-const logoImage = require('../assets/adaptive-icon.png'); 
+const logoImage = require('../assets/image.png'); 
 
 export default function TasksScreen({ navigation }) {
     return (
@@ -63,14 +63,7 @@ export default function TasksScreen({ navigation }) {
 
             </ScrollView>
 
-            <View style={styles.fakeBottomBar}>
-                <View style={styles.barItem}><Text>👤</Text></View>
-                <View style={styles.barItem}><Text>🗄️</Text></View>
-                <View style={styles.barItem}><Text>🧘</Text></View>
-                <View style={styles.barItem}><Text>☰</Text></View>
-                {/* Icono de configuración activo en tu PDF */}
-                <View style={[styles.barItem, styles.activeItem]}><Text>⚙️</Text></View>
-            </View>
+           
         </SafeAreaView>
     );
 }
@@ -79,7 +72,7 @@ const styles = StyleSheet.create({
     safeArea: { flex: 1, backgroundColor: '#fff' },
     scrollContainer: { paddingBottom: 80 },
     header: { alignItems: 'center', marginTop: 10, marginBottom: 10 },
-    logoImage: { width: 60, height: 40, resizeMode: 'contain' },
+    logoImage: { width: 200, height: 100, resizeMode: 'contain' },
     bannerContainer: {
         backgroundColor: '#FFCC80', paddingVertical: 12, flexDirection: 'row',
         alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, marginBottom: 20,
@@ -88,7 +81,6 @@ const styles = StyleSheet.create({
     backButtonText: { fontSize: 24, fontWeight: 'bold', color: '#000' },
     tasksContainer: { paddingHorizontal: 20 },
     
-    // Estilos de Tarjeta de Tarea
     taskCard: {
         backgroundColor: '#F5F5F5', borderRadius: 15, padding: 15, marginBottom: 15,
         flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
@@ -109,7 +101,6 @@ const styles = StyleSheet.create({
     },
     actionButtonText: { color: '#FFF', fontSize: 11, fontWeight: 'bold' },
 
-    // Estilos Nueva Tarea
     newTaskCard: {
         backgroundColor: '#FBE9E7', borderRadius: 15, padding: 20,
         flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10,

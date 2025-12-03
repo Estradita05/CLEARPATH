@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
     View, 
@@ -63,6 +64,7 @@ export default function TaskScreen({ navigation }) {
                 <View style={styles.barItem}><Text>🧘</Text></View>
                 <View style={styles.barItem}><Text>☰</Text></View>
                 <View style={styles.barItem}><Text>⚙️</Text></View>
+
             </View>
         </SafeAreaView>
     );

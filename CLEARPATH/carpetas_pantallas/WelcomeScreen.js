@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { 
     View, 
     Text, 
     StyleSheet, 
+
     Pressable, 
     SafeAreaView, 
     Image,
@@ -87,6 +89,7 @@ export default function HomeScreen({ navigation }) {
                 </Pressable>
 
             </ScrollView>
+
         </SafeAreaView>
     );
 }

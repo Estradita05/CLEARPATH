@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, Pressable, KeyboardAvoidingView, Platform, 
-Alert,SafeAreaView, Image,ActivityIndicatr } from 'react-native';
+Alert,SafeAreaView, Image,ActivityIndicator } from 'react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UsuarioController } from '../controllers/UsuarioController';

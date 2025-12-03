@@ -1,21 +1,11 @@
 import React, { useState } from 'react';
-import { 
-    View, 
-    Text, 
-    StyleSheet, 
-    TextInput, 
-    Pressable, 
-    KeyboardAvoidingView, 
-    Platform, 
-    Alert, 
-    SafeAreaView, 
-    Image, 
-    ActivityIndicator 
-} from 'react-native';
+import { View, Text, StyleSheet, TextInput, Pressable, KeyboardAvoidingView, Platform, 
+Alert,SafeAreaView, Image,ActivityIndicatr } from 'react-native';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UsuarioController } from '../controllers/UsuarioController';
 
-const logoImage = require('../assets/adaptive-icon.png'); 
+const logoImage = require('../assets/Logo.jpeg'); 
 
 export default function LoginScreen({ navigation }) {
     const [email, setEmail] = useState('');
@@ -49,15 +39,18 @@ export default function LoginScreen({ navigation }) {
             if (usuarioEncontrado) {
                 console.log("Usuario autenticado:", usuarioEncontrado.nombre);
                 
+                await AsyncStorage.setItem('usuario_sesion', JSON.stringify(usuarioEncontrado));
+
                 Alert.alert('¡Bienvenido!', `Hola de nuevo, ${usuarioEncontrado.nombre}`, [
                     { 
                         text: "CONTINUAR", 
                         onPress: () => {
-                            // Limpiamos campos
                             setEmail('');
                             setPassword('');
-                            // Navegamos a la pantalla de Bienvenida
-                            navigation.replace("Welcome"); 
+                            navigation.reset({
+                                index: 0,
+                                routes: [{ name: 'Welcome' }],
+                            });
                         }
                     }
                 ]);
@@ -147,26 +140,103 @@ const styles = StyleSheet.create({
     safeArea: { 
         flex: 1, 
         backgroundColor: '#fff' 
-        },
+    },
     container: { 
         flex: 1, 
         alignItems: 'center', 
-        width: '100%' },
-    logoContainer: { marginTop: 40, marginBottom: 20, alignItems: 'center' },
-    logoImage: { width: 100, height: 60, resizeMode: 'contain' },
-    brandText: { fontSize: 16, color: '#FFAB91', letterSpacing: 2, marginTop: 5, fontWeight: '300' },
-    bannerContainer: { width: '100%', backgroundColor: '#FFCC80', paddingVertical: 10, alignItems: 'center', marginBottom: 30 },
-    bannerText: { fontSize: 18, fontWeight: 'bold', color: '#000', textTransform: 'uppercase' },
-    contentContainer: { width: '85%', alignItems: 'center' },
-    subTitle: { fontSize: 16, color: '#555', marginBottom: 20 },
-    inputContainer: { width: '100%' },
-    label: { fontSize: 14, color: '#333', marginBottom: 5, fontWeight: '500', marginLeft: 5 },
-    input: { backgroundColor: '#F5F5F5', borderRadius: 20, paddingVertical: 10, paddingHorizontal: 15, marginBottom: 20, fontSize: 15, color: '#333' },
-    forgotPassContainer: { alignSelf: 'flex-end', marginBottom: 30 },
-    linkTextPink: { color: '#FF80AB', fontSize: 14, fontWeight: '400' },
-    button: { backgroundColor: '#FF9800', paddingVertical: 15, borderRadius: 25, width: '100%', alignItems: 'center', marginBottom: 20, elevation: 2 },
-    buttonDisabled: { backgroundColor: '#FFCC80' },
-    buttonText: { color: '#FFFFFF', fontSize: 18, fontWeight: 'bold' },
-    footer: { flexDirection: 'row', marginTop: 10 },
-    footerText: { fontSize: 14, color: '#555' },
+        width: '100%' 
+    },
+    logoContainer: { 
+        marginTop: 40, 
+        marginBottom: 20, 
+        alignItems: 'center' 
+    },
+    // CAMBIO: Aumenté el tamaño del logo como pediste
+    logoImage: { 
+        width: 180, // Antes era 100
+        height: 120, // Antes era 60
+        resizeMode: 'contain' 
+    },
+    brandText: { 
+        fontSize: 16, 
+        color: '#FFAB91', 
+        letterSpacing: 2, 
+        marginTop: 5, 
+        fontWeight: '300' 
+    },
+    bannerContainer: { 
+        width: '100%', 
+        backgroundColor: '#FFCC80', 
+        paddingVertical: 10, 
+        alignItems: 'center', 
+        marginBottom: 30 
+    },
+    bannerText: { 
+        fontSize: 18, 
+        fontWeight: 'bold', 
+        color: '#000', 
+        textTransform: 'uppercase' 
+    },
+    contentContainer: { 
+        width: '85%', 
+        alignItems: 'center' 
+    },
+    subTitle: { 
+        fontSize: 16, 
+        color: '#555', 
+        marginBottom: 20 
+    },
+    inputContainer: { 
+        width: '100%' 
+    },
+    label: { 
+        fontSize: 14, 
+        color: '#333', 
+        marginBottom: 5, 
+        fontWeight: '500', 
+        marginLeft: 5 
+    },
+    input: { 
+        backgroundColor: '#F5F5F5', 
+        borderRadius: 20, 
+        paddingVertical: 10, 
+        paddingHorizontal: 15, 
+        marginBottom: 20, 
+        fontSize: 15, 
+        color: '#333' 
+    },
+    forgotPassContainer: { 
+        alignSelf: 'flex-end', 
+        marginBottom: 30 
+    },
+    linkTextPink: { 
+        color: '#FF80AB', 
+        fontSize: 14, 
+        fontWeight: '400' 
+    },
+    button: { 
+        backgroundColor: '#FF9800', 
+        paddingVertical: 15, 
+        borderRadius: 25, 
+        width: '100%', 
+        alignItems: 'center', 
+        marginBottom: 20, 
+        elevation: 2 
+    },
+    buttonDisabled: { 
+        backgroundColor: '#FFCC80' 
+    },
+    buttonText: { 
+        color: '#FFFFFF', 
+        fontSize: 18, 
+        fontWeight: 'bold' 
+    },
+    footer: { 
+        flexDirection: 'row', 
+        marginTop: 10 
+    },
+    footerText: { 
+        fontSize: 14, 
+        color: '#555' 
+    },
 });
